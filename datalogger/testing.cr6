@@ -1,0 +1,120 @@
+' Urbanova reference site datalogger program
+'
+' Patrick O'Keeffe (c) 2017
+' Laboratory for Atmospheric Research at Washington State University
+'
+' https://github.com/urbanova/wsu-aq-ref-site
+
+Const SCAN_INTV = 1 'seconds
+Const STAT_INTV = 30 'minutes
+
+Const TWOB_405_COM = ComU3
+Const TWOB_405_BAUD = 19200
+Const TWOB_405_FMT = 3 '8/n/1
+Const TWOB_405_REC = 128
+Const TWOB_405_BUFF = 1+2*TWOB_405_REC
+
+Dim disable_m405 As Boolean
+Dim m405_record As String * TWOB_405_REC
+Dim twob_405nm(22)
+Alias twob_405nm(1)  = m405_NO2
+Alias twob_405nm(2)  = m405_NO
+Alias twob_405nm(3)  = m405_NOx
+Alias twob_405nm(4)  = m405_NO2_zero
+Alias twob_405nm(5)  = m405_NO_zero
+Alias twob_405nm(6)  = m405_flow_factor
+Alias twob_405nm(7)  = m405_cell_T
+Alias twob_405nm(8)  = m405_cell_P
+Alias twob_405nm(9)  = m405_overflow_F
+Alias twob_405nm(10) = m405_cell_F
+Alias twob_405nm(11) = m405_O3_F
+Alias twob_405nm(12) = m405_samp_LED_V
+Alias twob_405nm(13) = m405_ref_LED_V
+Alias twob_405nm(14) = m405_NO_gen_V
+Alias twob_405nm(15) = m405_scrubber_T
+'16: date, day of month    '19: time, hour
+'17: date, month           '20: time, minutes
+'18: date, short year      '21: time, seconds
+Alias twob_405nm(22) = m405_status
+Units m405_NO2 = ppb
+Units m405_NO = ppb
+Units m405_NOx = ppb
+Units m405_NO2_zero = ppb
+Units m405_NO_zero = ppb
+Units m405_cell_T = degC
+Units m405_cell_P = mbar
+Units m405_overflow_F = cc/min
+Units m405_cell_F = cc/min
+Units m405_O3_F = cc/min
+Units m405_samp_LED_V = volts
+Units m405_ref_LED_V = volts
+Units m405_NO_gen_V = volts
+Units m405_scrubber_T = degC
+
+
+'================================= TABLES
+DataTable(tsdata,True,10000)
+  DataInterval(0,SCAN_INTV,Sec,5)
+  Sample(7,twob_405nm(1),FP2) '2B Tech NOx
+  Sample(1,twob_405nm(8),IEEE4)
+  Sample(3,twob_405nm(9),FP2)
+  Sample(2,twob_405nm(12),IEEE4)
+  Sample(2,twob_405nm(14),FP2)
+  Sample(1,twob_405nm(22),UINT2)
+EndTable
+
+DataTable(stats,True,1000)
+  DataInterval(0,STAT_INTV,Min,5)
+  Average(1,m405_NO2,FP2,disable_m405) '2B Tech Nox
+  StdDev (1,m405_NO2,FP2,disable_m405)
+  Average(1,m405_NO,FP2,disable_m405)
+  StdDev (1,m405_NO,FP2,disable_m405)
+  Average(1,m405_NOx,FP2,disable_m405)
+  StdDev (1,m405_NOx,FP2,disable_m405)
+  Average(1,m405_NO2_zero,FP2,disable_m405)
+  StdDev (1,m405_NO2_zero,FP2,disable_m405)
+  Average(1,m405_NO_zero,FP2,disable_m405)
+  StdDev (1,m405_NO_zero,FP2,disable_m405)
+  Average(2,twob_405nm(6),FP2,disable_m405)
+  Average(1,twob_405nm(8),IEEE4,disable_m405)
+  Average(3,twob_405nm(9),FP2,disable_m405)
+  Average(2,twob_405nm(12),IEEE4,disable_m405)
+  Average(2,twob_405nm(14),FP2,disable_m405)
+EndTable
+
+'======================= MENU
+Const Off = False
+Const Recording = True
+DisplayMenu("WSU AQ Ref Site",-2)
+  SubMenu("Monitor data")
+    DisplayValue("2B NO,  ppb", m405_NO)
+    DisplayValue("2B NO2, ppb", m405_NO2)
+    DisplayValue("2B NOx, ppb", m405_NOx)
+  EndSubMenu
+EndMenu
+
+Const CR = CHR(13) 'carriage return
+
+Sub setup_m405()
+  SerialOpen(TWOB_405_COM,TWOB_405_BAUD,TWOB_405_FMT,0,TWOB_405_BUFF)
+  Move(twob_405nm(1),22,NAN,1)
+EndSub
+
+BeginProg
+  setup_m405()
+
+	Scan (SCAN_INTV,sec,0,0)
+    SerialIn(m405_record,TWOB_405_COM,100,&h0D,TWOB_405_REC)
+    If (Len(m405_record)) Then
+      SplitStr(twob_405nm(1),m405_record,"",22,0)
+      If (twob_405nm(21) = NAN) Then Move(twob_405nm(1),21,NAN,1)
+      SerialFlush(TWOB_405_COM)
+    EndIf
+
+    CallTable(tsdata)
+    CallTable(stats)
+    'CallTable(debug)
+    
+	NextScan
+EndProg
+
