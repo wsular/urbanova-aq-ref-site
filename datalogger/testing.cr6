@@ -14,6 +14,15 @@ Const TWOB_405_FMT = 3 '8/n/1
 Const TWOB_405_REC = 128
 Const TWOB_405_BUFF = 1+2*TWOB_405_REC
 
+Const LI840A_COM = ComC1
+Const LI840A_BAUD = 9600
+Const LI840A_FMT = 3 '8/n/1, RS232 logic
+Const LI840A_REC = 120
+Const LI840A_BUFF = LI840A_REC*2 + 1
+
+
+
+'============================ VARIABLES =================================
 Dim disable_m405 As Boolean
 Dim m405_record As String * TWOB_405_REC
 Dim twob_405nm(22)
@@ -51,6 +60,23 @@ Units m405_ref_LED_V = volts
 Units m405_NO_gen_V = volts
 Units m405_scrubber_T = degC
 
+Dim li840a_config As String * 300
+Dim li840a_resp As String * 32
+Dim li840a_record As String * LI840A_REC
+Dim li840a(6)
+Alias li840a(1) = li840a_cell_T
+Alias li840a(2) = li840a_cell_P
+Alias li840a(3) = li840a_CO2
+Alias li840a(4) = li840a_pwr_src
+Alias li840a(5) = li840a_H2O
+Alias li840a(6) = li840a_dewpoint
+Units li840a_cell_T = degC
+Units li840a_cell_P = mb
+Units li840a_CO2 = ppm
+Units li840a_pwr_src = Vdc
+Units li840a_H2O = ppth
+Units li840a_dewpoint = degC
+
 
 '================================= TABLES
 DataTable(tsdata,True,10000)
@@ -61,6 +87,12 @@ DataTable(tsdata,True,10000)
   Sample(2,twob_405nm(12),IEEE4)
   Sample(2,twob_405nm(14),FP2)
   Sample(1,twob_405nm(22),UINT2)
+  Sample(1,li840a_CO2,FP2) 'Licor CO2
+  Sample(1,li840a_H2O,FP2)
+  Sample(1,li840a_cell_T,FP2)
+  Sample(1,li840a_cell_P,IEEE4)
+  Sample(1,li840a_dewpoint,FP2)
+  Sample(1,li840a_pwr_src,FP2)
 EndTable
 
 DataTable(stats,True,1000)
@@ -80,6 +112,18 @@ DataTable(stats,True,1000)
   Average(3,twob_405nm(9),FP2,disable_m405)
   Average(2,twob_405nm(12),IEEE4,disable_m405)
   Average(2,twob_405nm(14),FP2,disable_m405)
+  Average(1,li840a_CO2,FP2,li840a_CO2=NAN) 'Licor LI840A
+    FieldNames("li840a_CO2")
+  Average(1,li840a_H2O,FP2,li840a_H2O=NAN)
+    FieldNames("li840a_H2O")
+  Average(1,li840a_cell_T,FP2,li840a_cell_T=NAN)
+    FieldNames("li840a_cell_T")
+  Average(1,li840a_cell_P,IEEE4,li840a_cell_P=NAN)
+    FieldNames("li840a_cell_P")
+  Average(1,li840a_dewpoint,FP2,li840a_dewpoint=NAN)
+    FieldNames("li840a_dewpoint")
+  Average(1,li840a_pwr_src,FP2,li840a_pwr_src=NAN)
+    FieldNames("li840a_pwr_src")
 EndTable
 
 '======================= MENU
@@ -87,13 +131,35 @@ Const Off = False
 Const Recording = True
 DisplayMenu("WSU AQ Ref Site",-2)
   SubMenu("Monitor data")
-    DisplayValue("2B NO,  ppb", m405_NO)
-    DisplayValue("2B NO2, ppb", m405_NO2)
-    DisplayValue("2B NOx, ppb", m405_NOx)
+    SubMenu("NOx (2B Tech)")
+      DisplayValue("2B NO,  ppb", m405_NO)
+      DisplayValue("2B NO2, ppb", m405_NO2)
+      DisplayValue("2B NOx, ppb", m405_NOx)
+    EndSubMenu
+    SubMenu("CO2/H2O (Licor)")
+      DisplayValue("CO2", li840a_CO2)
+      DisplayValue("H2O", li840a_H2O)
+      DisplayValue("Cell tmpr.", li840a_cell_T)
+      DisplayValue("Cell press.", li840a_cell_P)
+      DisplayValue("Dewpoint", li840a_dewpoint)
+      DisplayValue("Power in", li840a_pwr_src)
+    EndSubMenu
   EndSubMenu
 EndMenu
 
 Const CR = CHR(13) 'carriage return
+
+'============================== SUBROUTINES =================================
+Sub setup_li840a()
+  li840a_config = ("<li840><cfg><outrate>1</outrate></cfg><rs232><co2>true</co2>" & _
+        "<co2abs>false</co2abs><h2o>true</h2o><h2odewpoint>true</h2odewpoint>" & _
+        "<h2oabs>false</h2oabs><celltemp>true</celltemp><cellpres>true</cellpres>" & _
+        "<ivolt>true</ivolt><raw>false</raw><strip>true</strip></rs232></li840>")
+  li840a_resp = ("<li840><ack>true</ack></li840>")
+  SerialOpen(LI840A_COM,LI840A_BAUD,LI840A_FMT,0,LI840A_BUFF)
+  SerialOut(LI840A_COM,li840a_config,li840a_resp,3,1)
+  Move(li840a(1),6,NAN,1)         'inclusion of 0 in first averages produced
+EndSub
 
 Sub setup_m405()
   SerialOpen(TWOB_405_COM,TWOB_405_BAUD,TWOB_405_FMT,0,TWOB_405_BUFF)
@@ -101,6 +167,7 @@ Sub setup_m405()
 EndSub
 
 BeginProg
+  setup_li840a()
   setup_m405()
 
 	Scan (SCAN_INTV,sec,0,0)
@@ -109,6 +176,14 @@ BeginProg
       SplitStr(twob_405nm(1),m405_record,"",22,0)
       If (twob_405nm(21) = NAN) Then Move(twob_405nm(1),21,NAN,1)
       SerialFlush(TWOB_405_COM)
+    EndIf
+
+    SerialIn(li840a_record,LI840A_COM,50,&h0A,LI840A_BUFF)
+    If (Len(li840a_record)) Then
+      SplitStr(li840a(1),li840a_record,"",6,0)
+      li840a_cell_P *= 10 'kPa -> mbar
+    Else
+      Move(li840a(1),6,NAN,1)
     EndIf
 
     CallTable(tsdata)
