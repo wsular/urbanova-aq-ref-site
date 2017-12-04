@@ -14,6 +14,12 @@ Const TWOB_405_FMT = 3 '8/n/1
 Const TWOB_405_REC = 128
 Const TWOB_405_BUFF = 1+2*TWOB_405_REC
 
+Const TWOB_205_COM = ComU5
+Const TWOB_205_BAUD = 19200
+Const TWOB_205_FMT = 3 '8/n/1
+Const TWOB_205_REC = 80
+Const TWOB_205_BUFF = 1+2*TWOB_205_REC
+
 Const LI840A_COM = ComC1
 Const LI840A_BAUD = 9600
 Const LI840A_FMT = 3 '8/n/1, RS232 logic
@@ -60,6 +66,18 @@ Units m405_ref_LED_V = volts
 Units m405_NO_gen_V = volts
 Units m405_scrubber_T = degC
 
+Dim m205_record As String * TWOB_205_REC
+Dim twob_205(9)
+Alias twob_205(1) = m205_O3
+Alias twob_205(2) = m205_cell_T
+Alias twob_205(3) = m205_cell_P
+'4: date, day of month    '7: time, hour
+'5: date, month           '8: time, minute
+'6: date, short year      '9: time, second
+Units m205_O3 = ppbv
+Units m205_cell_T = degC
+Units m205_cell_P = mbar
+
 Dim li840a_config As String * 300
 Dim li840a_resp As String * 32
 Dim li840a_record As String * LI840A_REC
@@ -77,6 +95,8 @@ Units li840a_pwr_src = Vdc
 Units li840a_H2O = ppth
 Units li840a_dewpoint = degC
 
+Dim inbetween_1min_scan As Boolean
+Dim just_had_1min_scan As Boolean
 
 '================================= TABLES
 DataTable(tsdata,True,10000)
@@ -87,6 +107,8 @@ DataTable(tsdata,True,10000)
   Sample(2,twob_405nm(12),IEEE4)
   Sample(2,twob_405nm(14),FP2)
   Sample(1,twob_405nm(22),UINT2)
+  Sample(2,twob_205(1),FP2) '2B Tech O3
+  Sample(1,twob_205(3),IEEE4)
   Sample(1,li840a_CO2,FP2) 'Licor CO2
   Sample(1,li840a_H2O,FP2)
   Sample(1,li840a_cell_T,FP2)
@@ -112,6 +134,9 @@ DataTable(stats,True,1000)
   Average(3,twob_405nm(9),FP2,disable_m405)
   Average(2,twob_405nm(12),IEEE4,disable_m405)
   Average(2,twob_405nm(14),FP2,disable_m405)
+  Average(1,m205_O3,FP2,inbetween_1min_scan OR m205_O3=NAN) '2B Tech O3
+  Average(1,m205_cell_T,FP2,inbetween_1min_scan OR m205_cell_T=NAN)
+  Average(1,m205_cell_P,IEEE4,inbetween_1min_scan OR m205_cell_P=NAN)
   Average(1,li840a_CO2,FP2,li840a_CO2=NAN) 'Licor LI840A
     FieldNames("li840a_CO2")
   Average(1,li840a_H2O,FP2,li840a_H2O=NAN)
@@ -135,6 +160,11 @@ DisplayMenu("WSU AQ Ref Site",-2)
       DisplayValue("2B NO,  ppb", m405_NO)
       DisplayValue("2B NO2, ppb", m405_NO2)
       DisplayValue("2B NOx, ppb", m405_NOx)
+    EndSubMenu
+    SubMenu("O3 (2B Tech)")
+      DisplayValue("O3", m205_O3)
+      DisplayValue("Cell tmpr.", m205_cell_T)
+      DisplayValue("Cell press.", m205_cell_P)
     EndSubMenu
     SubMenu("CO2/H2O (Licor)")
       DisplayValue("CO2", li840a_CO2)
@@ -166,9 +196,17 @@ Sub setup_m405()
   Move(twob_405nm(1),22,NAN,1)
 EndSub
 
+Sub setup_m205()
+  SerialOpen(TWOB_205_COM,TWOB_205_BAUD,TWOB_205_FMT,0,TWOB_205_BUFF)
+  Move(twob_205(1),3,NAN,1)
+EndSub
+
+
+'========================= MAIN PROGRAM =====================================
 BeginProg
   setup_li840a()
   setup_m405()
+  setup_m205()
 
 	Scan (SCAN_INTV,sec,0,0)
     SerialIn(m405_record,TWOB_405_COM,100,&h0D,TWOB_405_REC)
@@ -190,6 +228,26 @@ BeginProg
     CallTable(stats)
     'CallTable(debug)
     
+    inbetween_1min_scan = True
+    If (just_had_1min_scan) Then
+      just_had_1min_scan = False
+      inbetween_1min_scan = False
+    EndIf
 	NextScan
-EndProg
 
+
+SlowSequence
+  Scan(1,Min,1,0)
+    SerialIn(m205_record,TWOB_205_COM,100,&h0D,TWOB_205_REC)
+    If (Len(m205_record)) Then
+      SplitStr(twob_205(1),m205_record,"",9,0)
+      If (twob_205(9)=NAN OR m205_cell_P < 800 OR m205_cell_P > 1300) Then
+        Move(twob_205(1),9,NAN,1)
+      EndIf
+      SerialFlush(TWOB_205_COM)
+    EndIf
+
+    just_had_1min_scan = True
+  NextScan
+
+EndProg
