@@ -139,6 +139,9 @@ Units flush_volFlow = L/min
 Units flush_delay = sec
 Units flush_Re = dimless
 
+Public t100u_so2
+Units t100u_so2 = ppb
+
 Public i
 Public inbetween_1min_scan As Boolean
 Public just_had_1min_scan As Boolean
@@ -164,7 +167,7 @@ DataTable(tsdata,True,10000)
   Sample(1,flush_massFlow,FP2)
   Sample(1,flush_tmpr,FP2)
   Sample(1,flush_press,FP2)
-  
+  Sample(1,t100u_so2,IEEE4)
 EndTable
 
 DataTable(stats,True,1000)
@@ -232,6 +235,9 @@ DisplayMenu("WSU AQ Ref Site",-2)
       DisplayValue("Cell press.", li840a_cell_P)
       DisplayValue("Dewpoint", li840a_dewpoint)
       DisplayValue("Power in", li840a_pwr_src)
+    EndSubMenu
+    SubMenu("SO2 (TAPI)")
+      DisplayValue("SO2, ppb", t100u_so2)
     EndSubMenu
     SubMenu("Flow (TSI)")
       DisplayValue("Flow, sLpm", flush_massFlow)
@@ -365,6 +371,8 @@ BeginProg
       flush_Re = IIF(flush_volFlow > 0, _
                       reynolds_num(flush_volFlow, flush_tmpr, flush_press), 0)
     EndIf
+
+    VoltDiff(t100u_so2,1,mv5000,U7,True,0,60,(100/5000),0)
 
     CallTable(tsdata)
     CallTable(stats)
