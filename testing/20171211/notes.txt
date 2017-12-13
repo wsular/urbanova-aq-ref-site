@@ -1,0 +1,7 @@
+Time offset between SO2 analyzer and datalogger:
+
+* Logger: 2017-10-17 07:02:27
+* SO2:    2017-12-13 12:00:25
+
+The logger is 4,942,678 seconds behind the SO2 analyzer...
+
