@@ -11,7 +11,7 @@ EndConstTable
 
 
 Const SCAN_INTV = 1 'seconds
-Const STAT_INTV = 30 'minutes
+Const STAT_INTV = 1 'minutes
 
 Const CR = CHR(13) 'carriage return
 
@@ -172,6 +172,8 @@ EndTable
 
 DataTable(stats,True,1000)
   DataInterval(0,STAT_INTV,Min,5)
+  Average(1,t100u_so2,IEEE4,t100u_so2=NAN)
+  StdDev (1,t100u_so2,IEEE4,t100u_so2=NAN)
   Average(1,m405_NO2,FP2,disable_m405) '2B Tech Nox
   StdDev (1,m405_NO2,FP2,disable_m405)
   Average(1,m405_NO,FP2,disable_m405)
