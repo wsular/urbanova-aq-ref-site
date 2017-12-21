@@ -14,6 +14,7 @@ Const SCAN_INTV = 1 'seconds
 Const STAT_INTV = 1 'minutes
 
 Const CR = CHR(13) 'carriage return
+Const LF = CHR(10) 'line feed
 
 Const TWOB_405_COM = ComU3
 Const TWOB_405_BAUD = 19200
@@ -40,10 +41,10 @@ Const LI840A_BUFF = LI840A_REC*2 + 1
 Const TSI_COM = ComC3
 Const TSI_BAUD = 38400
 Const TSI_FORMAT = 3  '8/none/1 in "binary mode"
-Const TSI_BUFF = 19  '2*(9 char/rec) + 1
-Const TSI_QUERY = "DBFTP0001"+CR 'request 1 binary record
-Const TSI_BEGINWORD = &h80000000 'special null byte representation
-Const TSI_ENDWORD = &hFFFF
+Const TSI_RECLEN = 23
+Const TSI_BUFF = 2*TSI_RECLEN + 1
+Const TSI_QUERY = "DCFTP0001"+CR 'request 1 CRLF delimited ascii record
+Const TSI_RESPONSE = "OK"+CR+LF
 Const TSI_STP_T = 21.1 'degC
 Const TSI_STP_P = 101.3 'kPa
 Const PI = 3.14159
@@ -124,9 +125,8 @@ Units li840a_H2O = ppth
 Units li840a_dewpoint = degC
 
 Public tsi_bytes
-Public tsi_record As String * 6
-Public tsi_words(3) As Long
-Public tmpr_msb As Long
+Public tsi_record As String * TSI_RECLEN
+Public disable_4043 As Boolean
 Public tsi(3)
 Alias tsi(1) = flush_massFlow
 Alias tsi(2) = flush_tmpr
@@ -146,7 +146,6 @@ Units flush_Re = dimless
 Public t100u_so2
 Units t100u_so2 = ppb
 
-Public i
 Public inbetween_1min_scan As Boolean
 Public just_had_1min_scan As Boolean
 
@@ -320,6 +319,7 @@ EndSub
 
 
 '========================= MAIN PROGRAM =====================================
+SequentialMode 'req'd for proper TSI4043 serial comms
 BeginProg
   setup_li840a()
   setup_m405()
@@ -342,40 +342,21 @@ BeginProg
       Move(li840a(1),6,NAN,1)
     EndIf
 
-    SerialInRecord(TSI_COM,tsi_record,TSI_BEGINWORD,0,TSI_ENDWORD,tsi_bytes,11)
-    SerialOut(TSI_COM,TSI_QUERY,"",0,0) 'ask for next measurement
-    If ((tsi_bytes = 6) OR (tsi_bytes = 4)) Then 'caught complete record
-      MoveBytes(tsi_words(1),2,tsi_record,0,2) 'flow
-      MoveBytes(tsi_words(3),2,tsi_record,4,2) 'press
-      'HINT string-indexing is 1-based but MoveBytes indexing is 0-based
-      tmpr_msb = ASCII(tsi_record(1,1,3)) 'grab sign & MSB as # (0-255)
-      tsi_words(2) = (tmpr_msb AND &h7F) << 8 'drop sign, push into 2nd byte pos
-      MoveBytes(tsi_words(2),3,tsi_record,3,1) 'move LSB into 1st byte pos
-      If (tmpr_msb AND &h80) Then tsi_words(2) -= 32768 'apply sign
-      For i = 1 To 3 'now scale to decimal
-        tsi(i) = tsi_words(i)/100.0
-      Next
-      
-      'HACK serialinrecord catches on most recent null byte so if consecutive
-      'leading null bytes are encountered (e.g. flow = 0.00), parsed record
-      'values will be off-by-one... shift each forward
-      If (flush_press <= 0) Then
-        flush_press = flush_tmpr
-        flush_tmpr = flush_massFlow
-        flush_massFlow = 0
-      EndIf
-
+    SerialOut(TSI_COM,TSI_QUERY,TSI_RESPONSE,1,2) 'wait 20ms for ack response   
+    Delay(0,20,msec) 'wait another 20ms for data message    
+    tsi_bytes = SerialInBlock(TSI_COM,tsi_record,TSI_RECLEN)
+    
+    If (StrComp(Left(tsi_record,3),"ERR")) 'no match
+      SplitStr(tsi(1),tsi_record,"",3,0)
       flush_volFlow = volumetric_flow(flush_massFlow, flush_tmpr, flush_press)
       flush_delay = IIF(tube_volume > 0, estimate_lag(flush_volFlow), NAN)
       flush_Re = IIF(flush_volFlow > 0, _
                       reynolds_num(flush_volFlow, flush_tmpr, flush_press), 0)
+      disable_4043 = False
     Else
-      flush_massFlow = NAN
-      flush_press = NAN
-      flush_tmpr = NAN
-      flush_volFlow = NAN
-      flush_delay = NAN
-      flush_Re = NAN
+      Move(tsi(1),3,NAN,1)
+      Move(tsi_etc(1),3,NAN,1)
+      disable_4043 = True
     EndIf
 
     VoltDiff(t100u_so2,1,mv5000,T100U_DF,True,0,60,T100U_MLT,T100U_OFF)
