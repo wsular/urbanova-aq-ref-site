@@ -7,6 +7,7 @@
 
 ConstTable
   Const FLUSH_TUBE_ID = 0.251 'inches, I.D. of sampling line
+  Const FLUSH_TUBE_LEN = 45   'feet, length of sampling line
 EndConstTable
 
 
@@ -314,6 +315,7 @@ EndSub
 
 Sub setup_tsi4043()
   SerialOpen(TSI_COM,TSI_BAUD,TSI_FORMAT,0,TSI_BUFF)
+  tube_volume = (FLUSH_TUBE_LEN * TUBE_AREA/144) * L_PER_FT3
   Move(tsi(1),3,NAN,1)
 EndSub
 
