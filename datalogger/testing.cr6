@@ -212,6 +212,7 @@ EndTable
 
 DataTable(tsdata,True,10000)
   DataInterval(0,SLOW_INTV,Min,5)
+  Sample(1,t100u_so2,IEEE4)
   Sample(7,twob_405nm(1),FP2) '2B Tech NOx
   Sample(1,twob_405nm(8),IEEE4)
   Sample(3,twob_405nm(9),FP2)
@@ -239,7 +240,6 @@ DataTable(tsdata,True,10000)
   Sample(1,flush_massFlow,FP2)
   Sample(1,flush_tmpr,FP2)
   Sample(1,flush_press,FP2)
-  Sample(1,t100u_so2,IEEE4)
 EndTable
 
 DataTable(stats,True,1000)
@@ -261,9 +261,6 @@ DataTable(stats,True,1000)
   Average(3,twob_405nm(9),FP2,inbetween_1min_scan OR disable_m405)
   Average(2,twob_405nm(12),IEEE4,inbetween_1min_scan OR disable_m405)
   Average(2,twob_405nm(14),FP2,inbetween_1min_scan OR disable_m405)
-  Average(1,m205_O3,FP2,inbetween_1min_scan OR m205_O3=NAN) '2B Tech O3
-  Average(1,m205_cell_T,FP2,inbetween_1min_scan OR m205_cell_T=NAN)
-  Average(1,m205_cell_P,IEEE4,inbetween_1min_scan OR m205_cell_P=NAN)
   Average(1,li840a_CO2,FP2,li840a_CO2=NAN) 'Licor LI840A
     FieldNames("li840a_CO2")
   Average(1,li840a_H2O,FP2,li840a_H2O=NAN)
@@ -276,6 +273,9 @@ DataTable(stats,True,1000)
     FieldNames("li840a_dewpoint")
   Average(1,li840a_pwr_src,FP2,li840a_pwr_src=NAN)
     FieldNames("li840a_pwr_src")
+  Average(1,m205_O3,FP2,inbetween_1min_scan OR m205_O3=NAN) '2B Tech O3
+  Average(1,m205_cell_T,FP2,inbetween_1min_scan OR m205_cell_T=NAN)
+  Average(1,m205_cell_P,IEEE4,inbetween_1min_scan OR m205_cell_P=NAN)
   Sample (6,work_out(1),FP2) 'Gill GMX600
   Average(1,gmx600_T,FP2,inbetween_1min_scan OR gmx600_T=NAN)
   Average(1,gmx600_RH,FP2,inbetween_1min_scan OR gmx600_RH=NAN)
