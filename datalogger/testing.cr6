@@ -11,7 +11,8 @@ ConstTable
 EndConstTable
 
 
-Const SCAN_INTV = 5 'seconds
+Const FAST_INTV = 1 'seconds
+Const SLOW_INTV = 1  'minutes
 Const STAT_INTV = 15 'minutes
 
 Const CR = CHR(13) 'carriage return
@@ -210,7 +211,7 @@ DataTable(work,True,1)
 EndTable
 
 DataTable(tsdata,True,10000)
-  DataInterval(0,SCAN_INTV,Sec,5)
+  DataInterval(0,SLOW_INTV,Min,5)
   Sample(7,twob_405nm(1),FP2) '2B Tech NOx
   Sample(1,twob_405nm(8),IEEE4)
   Sample(3,twob_405nm(9),FP2)
@@ -243,23 +244,23 @@ EndTable
 
 DataTable(stats,True,1000)
   DataInterval(0,STAT_INTV,Min,5)
-  Average(1,t100u_so2,IEEE4,t100u_so2=NAN) 'Teledyne SO2
-  StdDev (1,t100u_so2,IEEE4,t100u_so2=NAN)
-  Average(1,m405_NO2,FP2,disable_m405) '2B Tech Nox
-  StdDev (1,m405_NO2,FP2,disable_m405)
-  Average(1,m405_NO,FP2,disable_m405)
-  StdDev (1,m405_NO,FP2,disable_m405)
-  Average(1,m405_NOx,FP2,disable_m405)
-  StdDev (1,m405_NOx,FP2,disable_m405)
-  Average(1,m405_NO2_zero,FP2,disable_m405)
-  StdDev (1,m405_NO2_zero,FP2,disable_m405)
-  Average(1,m405_NO_zero,FP2,disable_m405)
-  StdDev (1,m405_NO_zero,FP2,disable_m405)
-  Average(2,twob_405nm(6),FP2,disable_m405)
-  Average(1,twob_405nm(8),IEEE4,disable_m405)
-  Average(3,twob_405nm(9),FP2,disable_m405)
-  Average(2,twob_405nm(12),IEEE4,disable_m405)
-  Average(2,twob_405nm(14),FP2,disable_m405)
+  Average(1,t100u_so2,IEEE4,inbetween_1min_scan OR t100u_so2=NAN) 'Teledyne SO2
+  StdDev (1,t100u_so2,IEEE4,inbetween_1min_scan OR t100u_so2=NAN)
+  Average(1,m405_NO2,FP2,inbetween_1min_scan OR disable_m405) '2B Tech Nox
+  StdDev (1,m405_NO2,FP2,inbetween_1min_scan OR disable_m405)
+  Average(1,m405_NO,FP2,inbetween_1min_scan OR disable_m405)
+  StdDev (1,m405_NO,FP2,inbetween_1min_scan OR disable_m405)
+  Average(1,m405_NOx,FP2,inbetween_1min_scan OR disable_m405)
+  StdDev (1,m405_NOx,FP2,inbetween_1min_scan OR disable_m405)
+  Average(1,m405_NO2_zero,FP2,inbetween_1min_scan OR disable_m405)
+  StdDev (1,m405_NO2_zero,FP2,inbetween_1min_scan OR disable_m405)
+  Average(1,m405_NO_zero,FP2,inbetween_1min_scan OR disable_m405)
+  StdDev (1,m405_NO_zero,FP2,inbetween_1min_scan OR disable_m405)
+  Average(2,twob_405nm(6),FP2,inbetween_1min_scan OR disable_m405)
+  Average(1,twob_405nm(8),IEEE4,inbetween_1min_scan OR disable_m405)
+  Average(3,twob_405nm(9),FP2,inbetween_1min_scan OR disable_m405)
+  Average(2,twob_405nm(12),IEEE4,inbetween_1min_scan OR disable_m405)
+  Average(2,twob_405nm(14),FP2,inbetween_1min_scan OR disable_m405)
   Average(1,m205_O3,FP2,inbetween_1min_scan OR m205_O3=NAN) '2B Tech O3
   Average(1,m205_cell_T,FP2,inbetween_1min_scan OR m205_cell_T=NAN)
   Average(1,m205_cell_P,IEEE4,inbetween_1min_scan OR m205_cell_P=NAN)
@@ -276,19 +277,19 @@ DataTable(stats,True,1000)
   Average(1,li840a_pwr_src,FP2,li840a_pwr_src=NAN)
     FieldNames("li840a_pwr_src")
   Sample (6,work_out(1),FP2) 'Gill GMX600
-  Average(1,gmx600_T,FP2,gmx600_T=NAN)
-  Average(1,gmx600_RH,FP2,gmx600_RH=NAN)
-  Average(1,gmx600_dewpt,FP2,gmx600_dewpt=NAN)
-  Average(1,gmx600_P,IEEE4,gmx600_P=NAN) 'HINT: FP2 lacks resolution
-  Average(1,gmx600_R_int,FP2,gmx600_R_int=NAN)
+  Average(1,gmx600_T,FP2,inbetween_1min_scan OR gmx600_T=NAN)
+  Average(1,gmx600_RH,FP2,inbetween_1min_scan OR gmx600_RH=NAN)
+  Average(1,gmx600_dewpt,FP2,inbetween_1min_scan OR gmx600_dewpt=NAN)
+  Average(1,gmx600_P,IEEE4,inbetween_1min_scan OR gmx600_P=NAN) 'HINT: FP2 lacks resolution
+  Average(1,gmx600_R_int,FP2,inbetween_1min_scan OR gmx600_R_int=NAN)
   Sample (1,gmx600_R_tot,FP2)
     FieldNames("gmx600_R_daily_Tot")
-  Average(1,gmx600_lat_deg,FP2,gmx600_lat_deg=NAN)
-  Average(1,gmx600_lat_min,IEEE4,gmx600_lat_min=NAN)
-  Average(1,gmx600_long_deg,FP2,gmx600_long_deg=NAN)
-  Average(1,gmx600_long_min,IEEE4,gmx600_long_min=NAN)
-  Average(1,gmx600_altitude,FP2,gmx600_altitude=NAN)
-  Median (1,gmx600_status,(60*STAT_INTV/SCAN_INTV),FP2,gmx600_status=NAN)
+  Average(1,gmx600_lat_deg,FP2,inbetween_1min_scan OR gmx600_lat_deg=NAN)
+  Average(1,gmx600_lat_min,IEEE4,inbetween_1min_scan OR gmx600_lat_min=NAN)
+  Average(1,gmx600_long_deg,FP2,inbetween_1min_scan OR gmx600_long_deg=NAN)
+  Average(1,gmx600_long_min,IEEE4,inbetween_1min_scan OR gmx600_long_min=NAN)
+  Average(1,gmx600_altitude,FP2,inbetween_1min_scan OR gmx600_altitude=NAN)
+  Median (1,gmx600_status,(60*STAT_INTV/SLOW_INTV),FP2,inbetween_1min_scan OR gmx600_status=NAN)
   Average(1,flush_massFlow,FP2,flush_massFlow=NAN)
   StdDev (1,flush_massFlow,FP2,flush_massFlow=NAN)
   Average(1,flush_tmpr,FP2,flush_tmpr=NAN)
@@ -427,14 +428,7 @@ BeginProg
   setup_m205()
   setup_tsi4043()
 
-	Scan (SCAN_INTV,sec,0,0)
-    SerialIn(m405_record,TWOB_405_COM,100,&h0D,TWOB_405_REC)
-    If (Len(m405_record)) Then
-      SplitStr(twob_405nm(1),m405_record,"",22,0)
-      If (twob_405nm(21) = NAN) Then Move(twob_405nm(1),21,NAN,1)
-      SerialFlush(TWOB_405_COM)
-    EndIf
-
+	Scan (FAST_INTV,sec,0,0)
     SerialIn(li840a_record,LI840A_COM,50,&h0A,LI840A_BUFF)
     If (Len(li840a_record)) Then
       SplitStr(li840a(1),li840a_record,"",6,0)
@@ -460,21 +454,6 @@ BeginProg
       disable_4043 = True
     EndIf
 
-    VoltDiff(t100u_so2,1,mv5000,T100U_DF,True,0,60,T100U_MLT,T100U_OFF)
-
-    SDI12Recorder(gmx600(1),GMX600_PORT,GMX600_ADDR,"M!",1,0)
-    SDI12Recorder(gmx600(6),GMX600_PORT,GMX600_ADDR,"M1!",1,0)
-    SDI12Recorder(gmx600(11),GMX600_PORT,GMX600_ADDR,"M3!",1,0)
-    SDI12Recorder(gmx600(14),GMX600_PORT,GMX600_ADDR,"M5!",1,0)
-    If (gmx600_status = 4) Then 'GPS fixed
-      gmx600_lat_min *= MIN_PER_FDEG 'convert fractional deg -> decimal minute
-      gmx600_long_min *= MIN_PER_FDEG
-    Else
-      Move(gmx600_lat_min,5,NAN,1) 'replace 999.99 with nulls
-    EndIf
-    CallTable(work)
-    If (work.Output(1,1)) Then GetRecord(work_out(1),work,1)
-
     CallTable(tsdata)
     CallTable(stats)
     'CallTable(debug)
@@ -488,7 +467,16 @@ BeginProg
 
 
 SlowSequence
-  Scan(1,Min,1,0)
+  Scan(SLOW_INTV,Min,1,0)
+    VoltDiff(t100u_so2,1,mv5000,T100U_DF,True,0,60,T100U_MLT,T100U_OFF)  
+
+    SerialIn(m405_record,TWOB_405_COM,100,&h0D,TWOB_405_REC)
+    If (Len(m405_record)) Then
+      SplitStr(twob_405nm(1),m405_record,"",22,0)
+      If (twob_405nm(21) = NAN) Then Move(twob_405nm(1),21,NAN,1)
+      SerialFlush(TWOB_405_COM)
+    EndIf
+
     SerialIn(m205_record,TWOB_205_COM,100,&h0D,TWOB_205_REC)
     If (Len(m205_record)) Then
       SplitStr(twob_205(1),m205_record,"",9,0)
@@ -497,6 +485,19 @@ SlowSequence
       EndIf
       SerialFlush(TWOB_205_COM)
     EndIf
+    
+    SDI12Recorder(gmx600(1),GMX600_PORT,GMX600_ADDR,"M!",1,0)
+    SDI12Recorder(gmx600(6),GMX600_PORT,GMX600_ADDR,"M1!",1,0)
+    SDI12Recorder(gmx600(11),GMX600_PORT,GMX600_ADDR,"M3!",1,0)
+    SDI12Recorder(gmx600(14),GMX600_PORT,GMX600_ADDR,"M5!",1,0)
+    If (gmx600_status = 4) Then 'GPS fixed
+      gmx600_lat_min *= MIN_PER_FDEG 'convert fractional deg -> decimal minute
+      gmx600_long_min *= MIN_PER_FDEG
+    Else
+      Move(gmx600_lat_min,5,NAN,1) 'replace 999.99 with nulls
+    EndIf
+    CallTable(work)
+    If (work.Output(1,1)) Then GetRecord(work_out(1),work,1)
 
     just_had_1min_scan = True
   NextScan
