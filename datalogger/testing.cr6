@@ -221,12 +221,12 @@ DataTable(tsdata,True,10000)
   Sample(1,twob_405nm(22),UINT2)
   Sample(2,twob_205(1),FP2) '2B Tech O3
   Sample(1,twob_205(3),IEEE4)
-  Sample(1,li840a_CO2,FP2) 'Licor CO2
-  Sample(1,li840a_H2O,FP2)
-  Sample(1,li840a_cell_T,FP2)
-  Sample(1,li840a_cell_P,IEEE4)
-  Sample(1,li840a_dewpoint,FP2)
-  Sample(1,li840a_pwr_src,FP2)
+  Average(1,li840a_CO2,FP2,li840a_CO2=NAN) 'Licor CO2
+  Average(1,li840a_H2O,FP2,li840a_H2O=NAN)
+  Average(1,li840a_cell_T,FP2,li840a_cell_T=NAN)
+  Average(1,li840a_cell_P,IEEE4,li840a_cell_P=NAN)
+  Average(1,li840a_dewpoint,FP2,li840a_dewpoint=NAN)
+  Average(1,li840a_pwr_src,FP2,li840a_pwr_src=NAN)
   Sample(8,gmx600(1),FP2) 'WD/WS up thru dewpoint
   Sample(1,gmx600_P,IEEE4)
   Sample(1,gmx600_R_int,FP2)
@@ -237,9 +237,9 @@ DataTable(tsdata,True,10000)
   Sample(1,gmx600_long_deg,FP2)
   Sample(1,gmx600_long_min,IEEE4)
   Sample(1,gmx600_altitude,IEEE4)
-  Sample(1,flush_massFlow,FP2)
-  Sample(1,flush_tmpr,FP2)
-  Sample(1,flush_press,FP2)
+  Average(1,flush_massFlow,FP2,flush_massFlow=NAN)
+  Average(1,flush_tmpr,FP2,flush_tmpr=NAN)
+  Average(1,flush_press,FP2,flush_press=NAN)
 EndTable
 
 DataTable(stats,True,1000)
