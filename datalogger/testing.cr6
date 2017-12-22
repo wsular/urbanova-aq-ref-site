@@ -400,7 +400,7 @@ Sub setup_li840a()
   li840a_resp = ("<li840><ack>true</ack></li840>")
   SerialOpen(LI840A_COM,LI840A_BAUD,LI840A_FMT,0,LI840A_BUFF)
   SerialOut(LI840A_COM,li840a_config,li840a_resp,3,1)
-  Move(li840a(1),6,NAN,1)         'inclusion of 0 in first averages produced
+  Move(li840a(1),6,NAN,1) 
 EndSub
 
 Sub setup_m405()
@@ -456,7 +456,6 @@ BeginProg
 
     CallTable(tsdata)
     CallTable(stats)
-    'CallTable(debug)
     
     inbetween_1min_scan = True
     If (just_had_1min_scan) Then
@@ -464,7 +463,6 @@ BeginProg
       inbetween_1min_scan = False
     EndIf
 	NextScan
-
 
 SlowSequence
   Scan(SLOW_INTV,Min,1,0)
@@ -503,3 +501,4 @@ SlowSequence
   NextScan
 
 EndProg
+
