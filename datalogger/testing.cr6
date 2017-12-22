@@ -210,7 +210,7 @@ DataTable(work,True,1)
                         (gmx600_corr_WS=NAN OR gmx600_corr_WD=NAN),0,0,0)
 EndTable
 
-DataTable(tsdata,True,10000)
+DataTable(tsdata,True,-1)
   DataInterval(0,SLOW_INTV,Min,5)
   Sample(1,t100u_so2,IEEE4)
   Sample(7,twob_405nm(1),FP2) '2B Tech NOx
@@ -242,7 +242,7 @@ DataTable(tsdata,True,10000)
   Average(1,flush_press,FP2,flush_press=NAN)
 EndTable
 
-DataTable(stats,True,1000)
+DataTable(stats,True,-1)
   DataInterval(0,STAT_INTV,Min,5)
   Average(1,t100u_so2,IEEE4,inbetween_1min_scan OR t100u_so2=NAN) 'Teledyne SO2
   StdDev (1,t100u_so2,IEEE4,inbetween_1min_scan OR t100u_so2=NAN)
