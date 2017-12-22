@@ -11,8 +11,8 @@ ConstTable
 EndConstTable
 
 
-Const SCAN_INTV = 1 'seconds
-Const STAT_INTV = 1 'minutes
+Const SCAN_INTV = 5 'seconds
+Const STAT_INTV = 15 'minutes
 
 Const CR = CHR(13) 'carriage return
 Const LF = CHR(10) 'line feed
@@ -38,6 +38,10 @@ Const LI840A_BAUD = 9600
 Const LI840A_FMT = 3 '8/n/1, RS232 logic
 Const LI840A_REC = 120
 Const LI840A_BUFF = LI840A_REC*2 + 1
+
+Const GMX600_PORT = U1
+Const GMX600_ADDR = 0
+Const MIN_PER_FDEG = 60/1e6
 
 Const TSI_COM = ComC3
 Const TSI_BAUD = 38400
@@ -125,6 +129,51 @@ Units li840a_pwr_src = Vdc
 Units li840a_H2O = ppth
 Units li840a_dewpoint = degC
 
+Public gmx600(19)
+Alias gmx600(1)  = gmx600_rel_WD    'aM!
+Alias gmx600(2)  = gmx600_rel_WS
+Alias gmx600(3)  = gmx600_corr_WD
+Alias gmx600(4)  = gmx600_corr_WS
+Alias gmx600(5)  = gmx600_status
+Alias gmx600(6)  = gmx600_T  'aM1!
+Alias gmx600(7)  = gmx600_RH
+Alias gmx600(8)  = gmx600_dewpt
+Alias gmx600(9)  = gmx600_P
+'Alias gmx600(10) is dup of (5)
+Alias gmx600(11) = gmx600_R_int 'aM3!
+Alias gmx600(12) = gmx600_R_tot
+'Alias gmx600(13) is dup of (5)
+Alias gmx600(14) = gmx600_lat_deg 'aM5!
+Alias gmx600(15) = gmx600_lat_min
+Alias gmx600(16) = gmx600_long_deg
+Alias gmx600(17) = gmx600_long_min
+Alias gmx600(18) = gmx600_altitude
+'Alias gmx600(19) is dup of (5)
+Units gmx600_rel_WD = degrees
+Units gmx600_rel_WS = m/s
+Units gmx600_corr_WD = degreesTN
+Units gmx600_corr_WS = m/s
+Units gmx600_status = arb
+Units gmx600_T = degC
+Units gmx600_RH = pct
+Units gmx600_dewpt = degC
+Units gmx600_P = hPa
+Units gmx600_R_int = mm/hr
+Units gmx600_R_tot = mm
+Units gmx600_lat_deg = degreesN
+Units gmx600_lat_min = minutesN
+Units gmx600_long_deg = degreesE
+Units gmx600_long_min = minutesE
+Units gmx600_altitude = m
+
+Public work_out(6)
+Alias work_out(1) = gmx600_rel_WS_Avg      'mean horizontal wind speed
+Alias work_out(2) = gmx600_rel_WD_unit_Avg 'unit vector mean wind direction
+Alias work_out(3) = gmx600_rel_WD_epa_Std  'Yamartino-algorithm WD std. dev.
+Alias work_out(4) = gmx600_corr_WS_Avg
+Alias work_out(5) = gmx600_corr_WD_unit_Avg
+Alias work_out(6) = gmx600_corr_WD_epa_Std
+
 Public tsi_bytes
 Public tsi_record As String * TSI_RECLEN
 Public disable_4043 As Boolean
@@ -152,6 +201,14 @@ Public just_had_1min_scan As Boolean
 
 
 '================================= TABLES
+DataTable(work,True,1)
+  DataInterval(0,STAT_INTV,Min,1)
+  WindVector(1,gmx600_rel_WS,gmx600_rel_WD,IEEE4, _
+                          (gmx600_rel_WS=NAN OR gmx600_rel_WD=NAN),0,0,0)
+  WindVector(1,gmx600_corr_WS,gmx600_corr_WD,IEEE4, _
+                        (gmx600_corr_WS=NAN OR gmx600_corr_WD=NAN),0,0,0)
+EndTable
+
 DataTable(tsdata,True,10000)
   DataInterval(0,SCAN_INTV,Sec,5)
   Sample(7,twob_405nm(1),FP2) '2B Tech NOx
@@ -168,6 +225,16 @@ DataTable(tsdata,True,10000)
   Sample(1,li840a_cell_P,IEEE4)
   Sample(1,li840a_dewpoint,FP2)
   Sample(1,li840a_pwr_src,FP2)
+  Sample(8,gmx600(1),FP2) 'WD/WS up thru dewpoint
+  Sample(1,gmx600_P,IEEE4)
+  Sample(1,gmx600_R_int,FP2)
+  Sample(1,gmx600_R_tot,FP2)
+    FieldNames("gmx600_R_daily_tot")
+  Sample(1,gmx600_lat_deg,FP2)
+  Sample(1,gmx600_lat_min,IEEE4)
+  Sample(1,gmx600_long_deg,FP2)
+  Sample(1,gmx600_long_min,IEEE4)
+  Sample(1,gmx600_altitude,IEEE4)
   Sample(1,flush_massFlow,FP2)
   Sample(1,flush_tmpr,FP2)
   Sample(1,flush_press,FP2)
@@ -176,7 +243,7 @@ EndTable
 
 DataTable(stats,True,1000)
   DataInterval(0,STAT_INTV,Min,5)
-  Average(1,t100u_so2,IEEE4,t100u_so2=NAN)
+  Average(1,t100u_so2,IEEE4,t100u_so2=NAN) 'Teledyne SO2
   StdDev (1,t100u_so2,IEEE4,t100u_so2=NAN)
   Average(1,m405_NO2,FP2,disable_m405) '2B Tech Nox
   StdDev (1,m405_NO2,FP2,disable_m405)
@@ -208,6 +275,20 @@ DataTable(stats,True,1000)
     FieldNames("li840a_dewpoint")
   Average(1,li840a_pwr_src,FP2,li840a_pwr_src=NAN)
     FieldNames("li840a_pwr_src")
+  Sample (6,work_out(1),FP2) 'Gill GMX600
+  Average(1,gmx600_T,FP2,gmx600_T=NAN)
+  Average(1,gmx600_RH,FP2,gmx600_RH=NAN)
+  Average(1,gmx600_dewpt,FP2,gmx600_dewpt=NAN)
+  Average(1,gmx600_P,IEEE4,gmx600_P=NAN) 'HINT: FP2 lacks resolution
+  Average(1,gmx600_R_int,FP2,gmx600_R_int=NAN)
+  Sample (1,gmx600_R_tot,FP2)
+    FieldNames("gmx600_R_daily_Tot")
+  Average(1,gmx600_lat_deg,FP2,gmx600_lat_deg=NAN)
+  Average(1,gmx600_lat_min,IEEE4,gmx600_lat_min=NAN)
+  Average(1,gmx600_long_deg,FP2,gmx600_long_deg=NAN)
+  Average(1,gmx600_long_min,IEEE4,gmx600_long_min=NAN)
+  Average(1,gmx600_altitude,FP2,gmx600_altitude=NAN)
+  Median (1,gmx600_status,(60*STAT_INTV/SCAN_INTV),FP2,gmx600_status=NAN)
   Average(1,flush_massFlow,FP2,flush_massFlow=NAN)
   StdDev (1,flush_massFlow,FP2,flush_massFlow=NAN)
   Average(1,flush_tmpr,FP2,flush_tmpr=NAN)
@@ -244,6 +325,24 @@ DisplayMenu("WSU AQ Ref Site",-2)
     EndSubMenu
     SubMenu("SO2 (TAPI)")
       DisplayValue("SO2, ppb", t100u_so2)
+    EndSubMenu
+    SubMenu("WX (MaxiMet")
+      DisplayValue("Status", gmx600_status)
+      DisplayValue("rel WS, m/s", gmx600_rel_WS)
+      DisplayValue("rel WD, deg", gmx600_rel_WD)
+      DisplayValue("corr WS, m/s", gmx600_corr_WS)
+      DisplayValue("corr WD, deg", gmx600_corr_WD)
+      DisplayValue("Tmpr, degC", gmx600_T)
+      DisplayValue("RH, pct", gmx600_RH)
+      DisplayValue("dewpt, degC", gmx600_dewpt)
+      DisplayValue("Press, hPa", gmx600_P)
+      DisplayValue("rain, mm/hr", gmx600_R_int)
+      DisplayValue("rain, mm/d", gmx600_R_tot)
+      DisplayValue("Lat, deg", gmx600_lat_deg)
+      DisplayValue("Lat, min", gmx600_lat_min)
+      DisplayValue("Long, deg", gmx600_long_deg)
+      DisplayValue("Long, min", gmx600_long_min)
+      DisplayValue("Altitude, m", gmx600_altitude)
     EndSubMenu
     SubMenu("Flow (TSI)")
       DisplayValue("Flow, sLpm", flush_massFlow)
@@ -362,6 +461,19 @@ BeginProg
     EndIf
 
     VoltDiff(t100u_so2,1,mv5000,T100U_DF,True,0,60,T100U_MLT,T100U_OFF)
+
+    SDI12Recorder(gmx600(1),GMX600_PORT,GMX600_ADDR,"M!",1,0)
+    SDI12Recorder(gmx600(6),GMX600_PORT,GMX600_ADDR,"M1!",1,0)
+    SDI12Recorder(gmx600(11),GMX600_PORT,GMX600_ADDR,"M3!",1,0)
+    SDI12Recorder(gmx600(14),GMX600_PORT,GMX600_ADDR,"M5!",1,0)
+    If (gmx600_status = 4) Then 'GPS fixed
+      gmx600_lat_min *= MIN_PER_FDEG 'convert fractional deg -> decimal minute
+      gmx600_long_min *= MIN_PER_FDEG
+    Else
+      Move(gmx600_lat_min,5,NAN,1) 'replace 999.99 with nulls
+    EndIf
+    CallTable(work)
+    If (work.Output(1,1)) Then GetRecord(work_out(1),work,1)
 
     CallTable(tsdata)
     CallTable(stats)
