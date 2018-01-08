@@ -203,6 +203,7 @@ Public just_had_1min_scan As Boolean
 
 '================================= TABLES
 DataTable(work,True,1)
+  TableHide
   DataInterval(0,STAT_INTV,Min,1)
   WindVector(1,gmx600_rel_WS,gmx600_rel_WD,IEEE4, _
                           (gmx600_rel_WS=NAN OR gmx600_rel_WD=NAN),0,0,0)
