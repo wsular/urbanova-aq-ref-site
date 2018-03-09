@@ -64,9 +64,9 @@ Const TUBE_AREA = PI*FLUSH_TUBE_ID*FLUSH_TUBE_ID/4 'in^2
 
 
 '============================ VARIABLES =================================
-Public disable_m405 As Boolean
-Public m405_record As String * TWOB_405_REC
-Public twob_405nm(22)
+Dim disable_m405 As Boolean
+Dim m405_record As String * TWOB_405_REC
+Dim twob_405nm(22)
 Alias twob_405nm(1)  = m405_NO2
 Alias twob_405nm(2)  = m405_NO
 Alias twob_405nm(3)  = m405_NOx
@@ -101,8 +101,8 @@ Units m405_ref_LED_V = volts
 Units m405_NO_gen_V = volts
 Units m405_scrubber_T = degC
 
-Public m205_record As String * TWOB_205_REC
-Public twob_205(9)
+Dim m205_record As String * TWOB_205_REC
+Dim twob_205(9)
 Alias twob_205(1) = m205_O3
 Alias twob_205(2) = m205_cell_T
 Alias twob_205(3) = m205_cell_P
@@ -113,10 +113,10 @@ Units m205_O3 = ppbv
 Units m205_cell_T = degC
 Units m205_cell_P = mbar
 
-Public li840a_config As String * 300
-Public li840a_resp As String * 32
-Public li840a_record As String * LI840A_REC
-Public li840a(6)
+Dim li840a_config As String * 300
+Dim li840a_resp As String * 32
+Dim li840a_record As String * LI840A_REC
+Dim li840a(6)
 Alias li840a(1) = li840a_cell_T
 Alias li840a(2) = li840a_cell_P
 Alias li840a(3) = li840a_CO2
@@ -130,7 +130,7 @@ Units li840a_pwr_src = Vdc
 Units li840a_H2O = ppth
 Units li840a_dewpoint = degC
 
-Public gmx600(19)
+Dim gmx600(19)
 Alias gmx600(1)  = gmx600_rel_WD    'aM!
 Alias gmx600(2)  = gmx600_rel_WS
 Alias gmx600(3)  = gmx600_corr_WD
@@ -167,7 +167,7 @@ Units gmx600_long_deg = degreesE
 Units gmx600_long_min = minutesE
 Units gmx600_altitude = m
 
-Public work_out(6)
+Dim work_out(6)
 Alias work_out(1) = gmx600_rel_WS_Avg      'mean horizontal wind speed
 Alias work_out(2) = gmx600_rel_WD_unit_Avg 'unit vector mean wind direction
 Alias work_out(3) = gmx600_rel_WD_epa_Std  'Yamartino-algorithm WD std. dev.
@@ -175,18 +175,18 @@ Alias work_out(4) = gmx600_corr_WS_Avg
 Alias work_out(5) = gmx600_corr_WD_unit_Avg
 Alias work_out(6) = gmx600_corr_WD_epa_Std
 
-Public tsi_bytes
-Public tsi_record As String * TSI_RECLEN
-Public disable_4043 As Boolean
-Public tsi(3)
+Dim tsi_bytes
+Dim tsi_record As String * TSI_RECLEN
+Dim disable_4043 As Boolean
+Dim tsi(3)
 Alias tsi(1) = flush_massFlow
 Alias tsi(2) = flush_tmpr
 Alias tsi(3) = flush_press
 Units flush_massFlow = sLpm
 Units flush_tmpr = degC
 Units flush_press = kPa
-Public tube_volume
-Public tsi_etc(3)
+Dim tube_volume
+Dim tsi_etc(3)
 Alias tsi_etc(1) = flush_volFlow
 Alias tsi_etc(2) = flush_delay
 Alias tsi_etc(3) = flush_Re
@@ -194,14 +194,31 @@ Units flush_volFlow = L/min
 Units flush_delay = sec
 Units flush_Re = dimless
 
-Public t100u_SO2
+Dim t100u_SO2
 Units t100u_SO2 = ppb
 
-Public inbetween_1min_scan As Boolean
-Public just_had_1min_scan As Boolean
-
+Dim inbetween_1min_scan As Boolean
+Dim just_had_1min_scan As Boolean
 
 '================================= TABLES
+Public debug_on As Boolean
+DataTable(debug_,debug_on,1)
+  Sample(1,disable_m405,Boolean)
+  Sample(1,m405_record,String)
+  Sample(22,twob_405nm(1),IEEE4)
+  Sample(1,m205_record,String)
+  Sample(9,twob_205(1),IEEE4)
+  Sample(1,li840a_record,String)
+  Sample(6,li840a(1),IEEE4)
+  Sample(19,gmx600(1),IEEE4)
+  Sample(1,tsi_bytes,IEEE4)
+  Sample(1,tsi_record,String)
+  Sample(1,disable_4043,Boolean)
+  Sample(3,tsi(1),IEEE4)
+  Sample(3,tsi_etc(1),IEEE4)
+  Sample(1,t100u_so2,IEEE4)
+EndTable
+
 DataTable(work,True,1)
   TableHide
   DataInterval(0,STAT_INTV,Min,1)
@@ -457,6 +474,7 @@ BeginProg
 
     CallTable(tsdata)
     CallTable(stats)
+    CallTable(debug_)
     
     inbetween_1min_scan = True
     If (just_had_1min_scan) Then
