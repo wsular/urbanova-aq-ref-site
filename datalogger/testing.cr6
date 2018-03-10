@@ -194,8 +194,8 @@ Units flush_volFlow = L/min
 Units flush_delay = sec
 Units flush_Re = dimless
 
-Public t100u_so2
-Units t100u_so2 = ppb
+Public t100u_SO2
+Units t100u_SO2 = ppb
 
 Public inbetween_1min_scan As Boolean
 Public just_had_1min_scan As Boolean
@@ -213,7 +213,7 @@ EndTable
 
 DataTable(tsdata,True,-1)
   DataInterval(0,SLOW_INTV,Min,5)
-  Sample(1,t100u_so2,IEEE4)
+  Sample(1,t100u_SO2,IEEE4)
   Sample(7,twob_405nm(1),FP2) '2B Tech NOx
   Sample(1,twob_405nm(8),IEEE4)
   Sample(3,twob_405nm(9),FP2)
@@ -251,8 +251,8 @@ EndTable
 
 DataTable(stats,True,-1)
   DataInterval(0,STAT_INTV,Min,5)
-  Average(1,t100u_so2,IEEE4,inbetween_1min_scan OR t100u_so2=NAN) 'Teledyne SO2
-  StdDev (1,t100u_so2,IEEE4,inbetween_1min_scan OR t100u_so2=NAN)
+  Average(1,t100u_SO2,IEEE4,inbetween_1min_scan OR t100u_SO2=NAN) 'Teledyne SO2
+  StdDev (1,t100u_SO2,IEEE4,inbetween_1min_scan OR t100u_SO2=NAN)
   Average(1,m405_NO2,FP2,inbetween_1min_scan OR disable_m405) '2B Tech Nox
   StdDev (1,m405_NO2,FP2,inbetween_1min_scan OR disable_m405)
   Average(1,m405_NO,FP2,inbetween_1min_scan OR disable_m405)
@@ -326,7 +326,7 @@ DisplayMenu("WSU AQ Ref Site",-2)
       DisplayValue("Power in", li840a_pwr_src)
     EndSubMenu
     SubMenu("SO2 (TAPI)")
-      DisplayValue("SO2, ppb", t100u_so2)
+      DisplayValue("SO2, ppb", t100u_SO2)
     EndSubMenu
     SubMenu("WX (MaxiMet")
       DisplayValue("Status", gmx600_status)
@@ -467,7 +467,7 @@ BeginProg
 
 SlowSequence
   Scan(SLOW_INTV,Min,1,0)
-    VoltDiff(t100u_so2,1,mv5000,T100U_DF,True,0,60,T100U_MLT,T100U_OFF)  
+    VoltDiff(t100u_SO2,1,mv5000,T100U_DF,True,0,60,T100U_MLT,T100U_OFF)
 
     SerialIn(m405_record,TWOB_405_COM,100,&h0D,TWOB_405_REC)
     If (Len(m405_record)) Then
