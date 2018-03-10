@@ -5,11 +5,8 @@
 '
 ' https://github.com/urbanova/wsu-aq-ref-site
 
-ConstTable
-  Const FLUSH_TUBE_ID = 0.251 'inches, I.D. of sampling line
-  Const FLUSH_TUBE_LEN = 45   'feet, length of sampling line
-EndConstTable
-
+'HINT assumes nominal 3/8" O.D. PFA tubing
+Const FLUSH_TUBE_ID = 0.251 'inches, I.D. of sampling line
 
 Const FAST_INTV = 1 'seconds
 Const SLOW_INTV = 1  'minutes
@@ -328,7 +325,7 @@ EndTable
 'custom user menu via keyboard display
 Dim filehandle As Long
 Const SETTINGS_FILE = "CPU:settings.dat"
-Const NUM_SETTINGS = {14}
+Const NUM_SETTINGS = {15}
 Const WRITEFILE = 0
 Const READFILE = 1
 
@@ -347,6 +344,7 @@ Alias setsave(11) = m405_nox_mlt 'NOx
 Alias setsave(12) = m405_nox_off
 Alias setsave(13) = t100u_so2_mlt   'SO2
 Alias setsave(14) = t100u_so2_off
+Alias setsave(15) = flush_tube_len
 Units li840a_co2_mlt = ppmv/ppmv
 Units li840a_co2_off = ppmv
 Units li840a_h2o_mlt = ppthv/ppthv
@@ -361,6 +359,7 @@ Units m405_nox_mlt = ppbv/ppbv
 Units m405_nox_off = ppbv
 Units t100u_so2_mlt = ppbv/ppbv
 Units t100u_so2_off = ppbv
+Units flush_tube_len = ft 'HINT yes, units matter - must be feet
 
 Public setchoose(NUM_SETTINGS) 'HINT this array edited by user via Public table
 Alias setchoose(1)  = set_li840a_co2_mlt 'CO2
@@ -377,6 +376,7 @@ Alias setchoose(11) = set_m405_nox_mlt 'NOx
 Alias setchoose(12) = set_m405_nox_off
 Alias setchoose(13) = set_t100u_so2_mlt   'SO2
 Alias setchoose(14) = set_t100u_so2_off 
+Alias setchoose(15) = set_flush_tube_len
 
 'HINT adjust table history length to taste (default: 500)
 'WARN modifying table history length will reset (erase) stored records!
@@ -400,6 +400,7 @@ Sub set_default_choices()
   set_m405_nox_off = 0
   set_t100u_so2_mlt = 1.0
   set_t100u_so2_off = 0
+  set_flush_tube_len = 45 'HINT update as approp!
 EndSub
 
 Sub populate_choices() 'replace current user choices with saved settings
@@ -583,7 +584,7 @@ EndSub
 
 Sub setup_tsi4043()
   SerialOpen(TSI_COM,TSI_BAUD,TSI_FORMAT,0,TSI_BUFF)
-  tube_volume = (FLUSH_TUBE_LEN * TUBE_AREA/144) * L_PER_FT3
+  tube_volume = (flush_tube_len * TUBE_AREA/144) * L_PER_FT3
   Move(tsi(1),3,NAN,1)
 EndSub
 
