@@ -8,6 +8,43 @@ Urbanova
 Source code and documentation for the air quality reference site operated by
 @wsular as part of the @urbanova project. 
 
+## Datalogger
+
+### Usage
+
+The following user-editable settings are exposed via the *Public* data table
+or the physical keyboard display:
+
+* Calibration scaling coefficients for gas analyzers
+
+To update values, enter the new desired values in the appropriate fields. No
+changes will be made effective until you explicitly save:
+
+* Keyboard display: <kbd>Settings</kbd>&rarr;<kbd>Apply/cancel</kbd>&rarr;
+  <kbd>Save now?</kbd>&rarr;<kbd>Yes</kbd>
+* LoggerNet clients: while viewing the *Public* table, type `true` into the
+  field `save_changes`, then wait several seconds (the value will revert to 
+  `false` once changes are saved)
+
+To discard all changes made to settings and revert values to their last 
+selection:
+
+* Keyboard display: <kbd>Settings</kbd>&rarr;<kbd>Apply/cancel</kbd>&rarr;
+  <kbd>Discard?</kbd>&rarr;<kbd>Yes</kbd>
+* LoggerNet clients: while viewing the *Public* table, type `true` into the
+  field `discard_changes`, then wait several seconds (the value will revert to
+  `false` once changes are discarded)
+
+To reset all settings to their default values:
+
+* Keyboard display: <kbd>Settings</kbd>&rarr;<kbd>Apply/cancel</kbd>&rarr;
+  <kbd>To defaults?</kbd>&rarr;<kbd>Yes</kbd>
+* LoggerNet clients: while viewing the *Public* table, type `true` into the
+  field `set_defaults`, then wait several seconds (the value will revert to
+  `false` once defaults are applied)
+
+
+
 ### Instrumentation
 
 The following scientific instruments and meteorological sensors are deployed

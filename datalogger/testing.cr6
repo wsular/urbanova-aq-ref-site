@@ -31,6 +31,9 @@ Const TWOB_205_REC = 80
 Const TWOB_205_BUFF = 1+2*TWOB_205_REC
 
 Const T100U_DF = U7
+'HINT this mult/offset pair represents the analog output scaling setting
+'of the instrument only; for calibration scaling, update the public vars
+'`t100u_so2_mlt` and `t100u_so2_off` then set `save_changes` to True
 Const T100U_OFF = 0
 Const T100U_MLT = (100-T100U_OFF)/5000
 
@@ -319,9 +322,126 @@ DataTable(stats,True,-1)
   Average(1,flush_Re,IEEE4,flush_Re=NAN)
 EndTable
 
+'=================== SETTINGS STORAGE
+'HINT the public table is repurposed to expose only settings; if you want
+'to monitor data, use the `debug` table via LoggerNet clients or the
+'custom user menu via keyboard display
+Dim filehandle As Long
+Const SETTINGS_FILE = "CPU:settings.dat"
+Const NUM_SETTINGS = {14}
+Const WRITEFILE = 0
+Const READFILE = 1
+
+Dim setsave(NUM_SETTINGS) 'HINT stored to CPU:, tracked in `settings_hist` table
+Alias setsave(1)  = li840a_co2_mlt 'CO2
+Alias setsave(2)  = li840a_co2_off
+Alias setsave(3)  = li840a_h2o_mlt 'H2O 
+Alias setsave(4)  = li840a_h2o_off
+Alias setsave(5)  = m205_o3_mlt 'O3
+Alias setsave(6)  = m205_o3_off
+Alias setsave(7)  = m405_no_mlt 'NO
+Alias setsave(8)  = m405_no_off
+Alias setsave(9)  = m405_no2_mlt 'NO2
+Alias setsave(10) = m405_no2_off
+Alias setsave(11) = m405_nox_mlt 'NOx
+Alias setsave(12) = m405_nox_off
+Alias setsave(13) = t100u_so2_mlt   'SO2
+Alias setsave(14) = t100u_so2_off
+Units li840a_co2_mlt = ppmv/ppmv
+Units li840a_co2_off = ppmv
+Units li840a_h2o_mlt = ppthv/ppthv
+Units li840a_h2o_off = ppthv
+Units m205_o3_mlt = ppbv/ppbv
+Units m205_o3_off = ppbv
+Units m405_no_mlt = ppbv/ppbv
+Units m405_no_off = ppbv
+Units m405_no2_mlt = ppbv/ppbv
+Units m405_no2_off = ppbv
+Units m405_nox_mlt = ppbv/ppbv
+Units m405_nox_off = ppbv
+Units t100u_so2_mlt = ppbv/ppbv
+Units t100u_so2_off = ppbv
+
+Public setchoose(NUM_SETTINGS) 'HINT this array edited by user via Public table
+Alias setchoose(1)  = set_li840a_co2_mlt 'CO2
+Alias setchoose(2)  = set_li840a_co2_off
+Alias setchoose(3)  = set_li840a_h2o_mlt 'H2O 
+Alias setchoose(4)  = set_li840a_h2o_off
+Alias setchoose(5)  = set_m205_o3_mlt 'O3
+Alias setchoose(6)  = set_m205_o3_off
+Alias setchoose(7)  = set_m405_no_mlt 'NO
+Alias setchoose(8)  = set_m405_no_off
+Alias setchoose(9)  = set_m405_no2_mlt 'NO2
+Alias setchoose(10) = set_m405_no2_off
+Alias setchoose(11) = set_m405_nox_mlt 'NOx
+Alias setchoose(12) = set_m405_nox_off
+Alias setchoose(13) = set_t100u_so2_mlt   'SO2
+Alias setchoose(14) = set_t100u_so2_off 
+
+'HINT adjust table history length to taste (default: 500)
+'WARN modifying table history length will reset (erase) stored records!
+DataTable(settings_hist,True,500) 
+  Sample(NUM_SETTINGS,setsave(1),IEEE4)
+EndTable
+
+Sub set_default_choices()
+  'TODO abstract into Constants for resetting with on failed input validation
+  set_li840a_co2_mlt = 1.0
+  set_li840a_co2_off = 0
+  set_li840a_h2o_mlt = 1.0
+  set_li840a_h2o_off = 0
+  set_m205_o3_mlt = 1.0
+  set_m205_o3_off = 0
+  set_m405_no_mlt = 1.0
+  set_m405_no_off = 0
+  set_m405_no2_mlt = 1.0
+  set_m405_no2_off = 0
+  set_m405_nox_mlt = 1.0
+  set_m405_nox_off = 0
+  set_t100u_so2_mlt = 1.0
+  set_t100u_so2_off = 0
+EndSub
+
+Sub populate_choices() 'replace current user choices with saved settings
+  Move(setchoose(1),NUM_SETTINGS,setsave(1),NUM_SETTINGS)
+EndSub
+
+Sub save_current_choices() 'replace saved settings with current choices
+  
+  'TODO validate inputs while still inside setchoose()
+  
+  Move(setsave(1),NUM_SETTINGS,setchoose(1),NUM_SETTINGS)
+  Calfile(setsave,NUM_SETTINGS,SETTINGS_FILE,WRITEFILE)
+  CallTable settings_hist
+EndSub
+
+Sub load_settings() 'load file from memory, using defaults if necessary
+  filehandle = FileOpen(SETTINGS_FILE,"rb",0)
+  FileClose(filehandle)
+  If (filehandle = 0) Then 'file was not found
+    set_default_choices()
+  Else
+    Calfile(setsave,NUM_SETTINGS,SETTINGS_FILE,READFILE)
+    populate_choices()
+  EndIf
+  save_current_choices()
+EndSub
+
+Sub reset_settings() 'revert everything to defaults
+  FileManage(SETTINGS_FILE,8) 'delete file
+  load_settings()
+EndSub
+
+
 '======================= MENU
 Const Off = False
 Const Recording = True
+Const Cancel = False
+Const Yes = True
+Public save_changes As Boolean
+Public discard_changes As Boolean
+Public set_defaults As Boolean
+
 DisplayMenu("WSU AQ Ref Site",-2)
   SubMenu("Monitor data")
     SubMenu("NOx (2B Tech)")
@@ -368,6 +488,36 @@ DisplayMenu("WSU AQ Ref Site",-2)
       DisplayValue("Tmpr, degC", flush_tmpr)
       DisplayValue("Press, kPa", flush_press)
     EndSubMenu
+  EndSubMenu
+  SubMenu("Settings")
+    SubMenu("CO2/H2O (Licor)")
+      MenuItem("CO2 mult.", set_li840a_co2_mlt)
+      MenuItem("CO2 offset", set_li840a_co2_off)
+      MenuItem("H2O mult.", set_li840a_h2o_mlt)
+      MenuItem("H2O offset", set_li840a_h2o_off)
+    EndSubMenu
+    SubMenu("NOx (2B Tech)")
+      MenuItem("NO mult.", set_m405_no_mlt)
+      MenuItem("NO offset", set_m405_no_off)
+      MenuItem("NO2 mult.", set_m405_no2_mlt)
+      MenuItem("NO2 offset", set_m405_no2_off)
+      MenuItem("NOx mult.", set_m405_nox_mlt)
+      MenuItem("NOx offset", set_m405_nox_off)
+    EndSubMenu
+    SubMenu("O3 (2B Tech)")
+      MenuItem("O3 mult.", set_m205_o3_mlt)
+      MenuItem("O3 offset", set_m205_o3_off)
+    EndSubMenu
+    SubMenu("SO2 (TAPI)")
+      MenuItem("SO2 mult.", set_t100u_so2_mlt)
+      MenuItem("SO2 offset", set_t100u_so2_off)
+    EndSubMenu
+    MenuItem("Save now?", save_changes)
+      MenuPick(Cancel,Yes)
+    MenuItem("Discard?", discard_changes)
+      MenuPick(Cancel,Yes)
+    MenuItem("To defaults?", set_defaults)
+        MenuPick(Cancel,Yes)
   EndSubMenu
 EndMenu
 
@@ -441,6 +591,7 @@ EndSub
 '========================= MAIN PROGRAM =====================================
 SequentialMode 'req'd for proper TSI4043 serial comms
 BeginProg
+  load_settings()
   setup_li840a()
   setup_m405()
   setup_m205()
@@ -475,6 +626,17 @@ BeginProg
     CallTable(tsdata)
     CallTable(stats)
     CallTable(debug_)
+
+    If (save_changes) Then
+      save_current_choices()
+      save_changes = Cancel
+    ElseIf (discard_changes) Then
+      populate_choices()
+      discard_changes = Cancel
+    ElseIf (set_defaults) Then
+      reset_settings()
+      set_defaults = Cancel
+    EndIf
     
     inbetween_1min_scan = True
     If (just_had_1min_scan) Then
