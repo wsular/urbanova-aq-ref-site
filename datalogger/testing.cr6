@@ -602,6 +602,8 @@ BeginProg
     If (Len(li840a_record)) Then
       SplitStr(li840a(1),li840a_record,"",6,0)
       li840a_cell_P *= 10 'kPa -> mbar
+      li840a_CO2 = li840a_CO2 * li840a_co2_mlt + li840a_co2_off
+      li840a_H2O = li840a_H2O * li840a_h2o_mlt + li840a_h2o_off
     Else
       Move(li840a(1),6,NAN,1)
     EndIf
@@ -648,6 +650,7 @@ BeginProg
 SlowSequence
   Scan(SLOW_INTV,Min,1,0)
     VoltDiff(t100u_SO2,1,mv5000,T100U_DF,True,0,60,T100U_MLT,T100U_OFF)
+    t100u_SO2 = t100u_SO2 * t100u_so2_mlt + t100u_so2_off
 
     SerialIn(m405_record,TWOB_405_COM,100,&h0D,TWOB_405_REC)
     If (Len(m405_record)) Then
@@ -657,6 +660,9 @@ SlowSequence
         disable_m405 = True
       EndIf
       SerialFlush(TWOB_405_COM)
+      m405_NO = m405_NO * m405_no_mlt + m405_no_off
+      m405_NO2 = m405_NO2 * m405_no2_mlt + m405_no2_off
+      m405_NOx = m405_NOx * m405_nox_mlt + m405_nox_off
     EndIf
 
     SerialIn(m205_record,TWOB_205_COM,100,&h0D,TWOB_205_REC)
@@ -666,6 +672,7 @@ SlowSequence
         Move(twob_205(1),9,NAN,1)
       EndIf
       SerialFlush(TWOB_205_COM)
+      m205_O3 = m205_O3 * m205_o3_mlt + m205_o3_off
     EndIf
     
     SDI12Recorder(gmx600(1),GMX600_PORT,GMX600_ADDR,"M!",1,0)
