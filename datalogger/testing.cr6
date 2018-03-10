@@ -472,7 +472,10 @@ SlowSequence
     SerialIn(m405_record,TWOB_405_COM,100,&h0D,TWOB_405_REC)
     If (Len(m405_record)) Then
       SplitStr(twob_405nm(1),m405_record,"",22,0)
-      If (twob_405nm(21) = NAN) Then Move(twob_405nm(1),21,NAN,1)
+      If (twob_405nm(21) = NAN) Then 
+        Move(twob_405nm(1),21,NAN,1)
+        disable_m405 = True
+      EndIf
       SerialFlush(TWOB_405_COM)
     EndIf
 
