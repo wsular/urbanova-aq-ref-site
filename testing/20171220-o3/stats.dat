@@ -1,0 +1,8 @@
+"TOA5","Urbanova AQ Reference Site","CR6","7196","CR6.Std.07","CPU:manual_m205.cr6","25014","stats"
+"TIMESTAMP","RECORD","duration","m205_O3_Avg","m205_O3_Std","m205_cell_T_Avg","m205_cell_T_Std","m205_cell_P_Avg","m205_cell_P_Std","ref_O3_conc","ref_O3_tolerance","ref_cylinder","notes"
+"TS","RN","sec","ppbv","ppbv","degC","degC","mbar","mbar","ppb","ppb","",""
+"","","Smp","Avg","Std","Avg","Std","Avg","Std","Smp","Smp","Smp","Smp"
+"2017-12-20 15:27:40",0,2056.0,0.26500,1.6260,36.100,0.018000,879.3790,2.2290,0.000000,0.000000,"Teledyne T700U sn 294","with m205 conf Z=0, S=1.00"
+"2017-12-20 16:10:30",1,2436.0,20.410,2.5620,36.170,0.047000,880.1402,2.2130,20.00000,0.000000,"Teledyne T700U sn 294","with m205 conf Z=0, S=1.00"
+"2017-12-20 16:56:54",2,2660.0,140.90,3.2980,36.080,0.043000,880.6985,2.2220,150.0000,0.000000,"Teledyne T700U sn 294","with m205 conf Z=0, S=1.00"
+"2017-12-20 17:29:14",3,1734.0,17.510,1.7750,36.060,0.049000,875.2846,0.16600,"NAN","NAN","room air, PETB 417","with m205 conf Z=0, S=1.00"
