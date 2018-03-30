@@ -36,23 +36,13 @@ at this location:
     * Nitric oxide (NO)
     * Nitrogen dioxide (NO<sub>2</sub>)
     * Other oxides of nitrogen (NO<sub>X</sub>)
+* Closed-path gas analyzer ([Model T100U; Teledyne API](http://www.teledyne-api.com/products/sulfur-compound-instruments/t100u))
+    * Sulfur dioxide (SO<sub>2</sub>)
 * Mass flowmeter ([Model 4043; TSI](http://www.tsi.com/Mass-Flowmeter-4043/))
     * Volumetric/mass flow rate
     * Gas stream temperature
     * Gas stream pressure
 * Datalogger ([CR6; Campbell Scientific](https://www.campbellsci.com/cr6))
-    * with keyboard display
-
-### Future Work
-
-Additionally, the following are anticipate for future inclusion:
-
-* Closed-path gas analyzer (Model 48; Thermo Environ Corp)
-    * Carbon monoxide
-* 4-channel component net radiometer ([CNR1; Kipp & Zonen](https://www.campbellsci.com/cnr1))
-    * long wave & short wave, incoming & outgoing radiation
-* photosynthetically active radiation (PAR) ([LI-190SB; LICOR Biosciences](https://www.campbellsci.com/li190sb-l))
-    * PAR
 
 
 
