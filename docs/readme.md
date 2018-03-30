@@ -114,7 +114,7 @@ of the trace gas analyzers, ahead of the pump, for monitoring total sample flow,
 temperature and pressure. The flowmeter and pump are protected from particles
 by the filter provided with the flowmeter. An open-faced PFA membrane filter 
 holder (no filter installed) (*Savillex 401-series*) at the tripod end of the
-sample line acts as a bug screen (not pictured). 
+sample line acts as a bug screen.
 
 Each trace gas analyzer draws air from the 3/8" sampling line through nominal
 1/4" O.D. PFA tubing (*Swagelok PFA-T4-047-xx*) and an appropriately-sized
