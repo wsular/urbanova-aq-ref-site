@@ -122,7 +122,7 @@ particulate filter. Sample is exhausted into ambient surroundings. With the
 exception of a single 316SS bulkhead connector, the wetted flow path is entirely
 PFA components. 
 
-![Sample flow diagram](flow_diagram.png)
+![Sample flow diagram](img/flow_diagram.png)
 
 ### Power
 
@@ -136,7 +136,7 @@ The EBAM PLUS receives power via a 100ft extension cord fed into the penthouse.
 It is plugged directly into the outlet adjacent to the instrument rack, rather
 than being powered through the rack PDU (diagram is outdated).
 
-![Power diagram](power_diagram.png)
+![Power diagram](img/power_diagram.png)
 
 
 ### Rack Assembly Photos
