@@ -36,23 +36,13 @@ at this location:
     * Nitric oxide (NO)
     * Nitrogen dioxide (NO<sub>2</sub>)
     * Other oxides of nitrogen (NO<sub>X</sub>)
+* Closed-path gas analyzer ([Model T100U; Teledyne API](http://www.teledyne-api.com/products/sulfur-compound-instruments/t100u))
+    * Sulfur dioxide (SO<sub>2</sub>)
 * Mass flowmeter ([Model 4043; TSI](http://www.tsi.com/Mass-Flowmeter-4043/))
     * Volumetric/mass flow rate
     * Gas stream temperature
     * Gas stream pressure
 * Datalogger ([CR6; Campbell Scientific](https://www.campbellsci.com/cr6))
-    * with keyboard display
-
-### Future Work
-
-Additionally, the following are anticipate for future inclusion:
-
-* Closed-path gas analyzer (Model 48; Thermo Environ Corp)
-    * Carbon monoxide
-* 4-channel component net radiometer ([CNR1; Kipp & Zonen](https://www.campbellsci.com/cnr1))
-    * long wave & short wave, incoming & outgoing radiation
-* photosynthetically active radiation (PAR) ([LI-190SB; LICOR Biosciences](https://www.campbellsci.com/li190sb-l))
-    * PAR
 
 
 
@@ -114,7 +104,7 @@ of the trace gas analyzers, ahead of the pump, for monitoring total sample flow,
 temperature and pressure. The flowmeter and pump are protected from particles
 by the filter provided with the flowmeter. An open-faced PFA membrane filter 
 holder (no filter installed) (*Savillex 401-series*) at the tripod end of the
-sample line acts as a bug screen (not pictured). 
+sample line acts as a bug screen.
 
 Each trace gas analyzer draws air from the 3/8" sampling line through nominal
 1/4" O.D. PFA tubing (*Swagelok PFA-T4-047-xx*) and an appropriately-sized
@@ -122,7 +112,7 @@ particulate filter. Sample is exhausted into ambient surroundings. With the
 exception of a single 316SS bulkhead connector, the wetted flow path is entirely
 PFA components. 
 
-![Sample flow diagram](flow_diagram.png)
+![Sample flow diagram](img/flow_diagram.png)
 
 ### Power
 
@@ -134,9 +124,18 @@ sample flow will be well-documented.
 
 The EBAM PLUS receives power via a 100ft extension cord fed into the penthouse.
 It is plugged directly into the outlet adjacent to the instrument rack, rather
-than being powered through the rack PDU (diagram is outdated).
+than being powered through the rack PDU.
 
-![Power diagram](power_diagram.png)
+![Power diagram](img/power_diagram.png)
+
+### Networking
+
+Internet access is obtained from the *WSU Wireless* network by a SOHO wifi
+radio (*Picostation M2; Ubiquiti Networks*) configured in router mode to
+provide a private local area network for monitoring site devices. Appropriate
+port forwarding and/or SSH tunnels are established to facilitate remote access.
+
+![Network diagram](img/wifi_network.png)
 
 
 ### Rack Assembly Photos

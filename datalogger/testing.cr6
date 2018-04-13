@@ -3,7 +3,7 @@
 ' Patrick O'Keeffe (c) 2017
 ' Laboratory for Atmospheric Research at Washington State University
 '
-' https://github.com/urbanova/wsu-aq-ref-site
+' https://github.com/wsular/urbanova-aqnet-ref-site
 
 'HINT assumes nominal 3/8" O.D. PFA tubing
 Const FLUSH_TUBE_ID = 0.251 'inches, I.D. of sampling line
