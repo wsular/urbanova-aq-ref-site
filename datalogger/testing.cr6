@@ -7,6 +7,10 @@
 
 'HINT assumes nominal 3/8" O.D. PFA tubing
 Const FLUSH_TUBE_ID = 0.251 'inches, I.D. of sampling line
+Const NTP_SERVER = "north-america.pool.ntp.org"
+Const UTC_OFFSET = -8 'hours
+Const MAX_CLOCK_DRIFT = 2000 'ms
+
 
 Const FAST_INTV = 1 'seconds
 Const SLOW_INTV = 1  'minutes
@@ -197,6 +201,9 @@ Units flush_Re = dimless
 Dim t100u_SO2
 Units t100u_SO2 = ppb
 
+Dim ntp_offset
+Units ntp_offset = ms
+
 Dim inbetween_1min_scan As Boolean
 Dim just_had_1min_scan As Boolean
 
@@ -217,6 +224,7 @@ DataTable(debug_,debug_on,1)
   Sample(3,tsi(1),IEEE4)
   Sample(3,tsi_etc(1),IEEE4)
   Sample(1,t100u_so2,IEEE4)
+  Sample(1,ntp_offset,IEEE4)
 EndTable
 
 DataTable(work,True,1)
@@ -692,5 +700,9 @@ SlowSequence
     just_had_1min_scan = True
   NextScan
 
+SlowSequence
+  Scan(5,Min,1,0)
+    ntp_offset = NetworkTimeProtocol(NTP_SERVER,UTC_OFFSET,MAX_CLOCK_DRIFT)
+  NextScan
 EndProg
 
