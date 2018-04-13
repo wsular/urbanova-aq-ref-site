@@ -17,7 +17,9 @@
 
 * Add user-defined linear scaling to each gas analyzer, for use in applying
   calibration coefficients
-
+* Exclude flagged data from 2B Tech NO/NO<sub>2</sub> analyzer from final data
+  storage
+* Maintain logger clock sync using NTP
 
 
 ## 20171222-deploy
