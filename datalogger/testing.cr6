@@ -223,7 +223,7 @@ DataTable(debug_,debug_on,1)
   Sample(1,disable_4043,Boolean)
   Sample(3,tsi(1),IEEE4)
   Sample(3,tsi_etc(1),IEEE4)
-  Sample(1,t100u_so2,IEEE4)
+  Sample(1,t100u_SO2,IEEE4)
   Sample(1,ntp_offset,IEEE4)
 EndTable
 
