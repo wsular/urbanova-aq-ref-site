@@ -10,6 +10,7 @@ Const FLUSH_TUBE_ID = 0.251 'inches, I.D. of sampling line
 Const NTP_SERVER = "north-america.pool.ntp.org"
 Const UTC_OFFSET = -8 'hours
 Const MAX_CLOCK_DRIFT = 2000 'ms
+Const YEARS_DATA = 2 'years, how much SD card storage?
 
 
 Const FAST_INTV = 1 'seconds
@@ -238,6 +239,7 @@ EndTable
 
 DataTable(tsdata,True,-1)
   DataInterval(0,SLOW_INTV,Min,5)
+  CardOut(0,(YEARS_DATA*365*24*60/SLOW_INTV))
   Sample(1,t100u_SO2,IEEE4)
   Sample(7,twob_405nm(1),FP2) '2B Tech NOx
   Sample(1,twob_405nm(8),IEEE4)
@@ -276,6 +278,7 @@ EndTable
 
 DataTable(stats,True,-1)
   DataInterval(0,STAT_INTV,Min,5)
+  CardOut(0,(YEARS_DATA*365*24*60/STAT_INTV))
   Average(1,t100u_SO2,IEEE4,inbetween_1min_scan OR t100u_SO2=NAN) 'Teledyne SO2
   StdDev (1,t100u_SO2,IEEE4,inbetween_1min_scan OR t100u_SO2=NAN)
   Average(1,m405_NO2,FP2,inbetween_1min_scan OR disable_m405) '2B Tech Nox
@@ -403,7 +406,8 @@ Units set_flush_tube_len = ft
 
 'HINT adjust table history length to taste (default: 500)
 'WARN modifying table history length will reset (erase) stored records!
-DataTable(settings_hist,True,500) 
+DataTable(settings_hist,True,500)
+  CardOut(1,1000)
   Sample(NUM_SETTINGS,setsave(1),IEEE4)
 EndTable
 

@@ -5,6 +5,7 @@
 
 ### Data Table Changes
 
+* Enable saving data tables to microSD card: *tsdata*, *stats*, *settings_hist*
 * In table *tsdata*, remove any suffixes denoting processing. The suffixes are
   still present in table *stats*.
 * In tables *tsdata* and *stats*, change capitalization so abbreviations of
