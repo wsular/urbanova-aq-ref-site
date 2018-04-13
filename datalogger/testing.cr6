@@ -385,6 +385,21 @@ Alias setchoose(12) = set_m405_nox_off
 Alias setchoose(13) = set_t100u_so2_mlt   'SO2
 Alias setchoose(14) = set_t100u_so2_off 
 Alias setchoose(15) = set_flush_tube_len
+Units set_li840a_co2_mlt = ppmv/ppmv
+Units set_li840a_co2_off = ppmv
+Units set_li840a_h2o_mlt = ppthv/ppthv
+Units set_li840a_h2o_off = ppthv
+Units set_m205_o3_mlt = ppbv/ppbv
+Units set_m205_o3_off = ppbv
+Units set_m405_no_mlt = ppbv/ppbv
+Units set_m405_no_off = ppbv
+Units set_m405_no2_mlt = ppbv/ppbv
+Units set_m405_no2_off = ppbv
+Units set_m405_nox_mlt = ppbv/ppbv
+Units set_m405_nox_off = ppbv
+Units set_t100u_so2_mlt = ppbv/ppbv
+Units set_t100u_so2_off = ppbv
+Units set_flush_tube_len = ft
 
 'HINT adjust table history length to taste (default: 500)
 'WARN modifying table history length will reset (erase) stored records!
