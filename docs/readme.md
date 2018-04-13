@@ -124,9 +124,18 @@ sample flow will be well-documented.
 
 The EBAM PLUS receives power via a 100ft extension cord fed into the penthouse.
 It is plugged directly into the outlet adjacent to the instrument rack, rather
-than being powered through the rack PDU (diagram is outdated).
+than being powered through the rack PDU.
 
 ![Power diagram](img/power_diagram.png)
+
+### Networking
+
+Internet access is obtained from the *WSU Wireless* network by a SOHO wifi
+radio (*Picostation M2; Ubiquiti Networks*) configured in router mode to
+provide a private local area network for monitoring site devices. Appropriate
+port forwarding and/or SSH tunnels are established to facilitate remote access.
+
+![Network diagram](img/wifi_network.png)
 
 
 ### Rack Assembly Photos
