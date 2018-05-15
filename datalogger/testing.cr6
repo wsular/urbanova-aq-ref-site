@@ -721,7 +721,7 @@ SlowSequence
 
 SlowSequence
   Scan(5,Min,1,0)
-    ntp_offset = NetworkTimeProtocol(NTP_SERVER,UTC_OFFSET,MAX_CLOCK_DRIFT)
+    ntp_offset = NetworkTimeProtocol(NTP_SERVER,UTC_OFFSET*3600,MAX_CLOCK_DRIFT)
   NextScan
 EndProg
 

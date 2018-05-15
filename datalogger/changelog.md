@@ -3,6 +3,14 @@
 
 ## 20180413-deploy
 
+### Fixes made
+
+* Fix NTP offset specification; to correct data from previous deployment until
+  this release, apply -8hr (specifically: -7h59m52s) offset to timestamps.
+
+
+## 20180413-deploy
+
 ### Data Table Changes
 
 * Enable saving data tables to microSD card: *tsdata*, *stats*, *settings_hist*
